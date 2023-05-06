@@ -1,19 +1,19 @@
-use std::{io, time::Duration};
 use argh::FromArgs;
+use std::{io, time::Duration};
 
+mod app;
 mod crossterm_backend;
 mod ui;
-mod app;
 
 use crate::crossterm_backend::run;
 
 #[derive(FromArgs)]
-#[argh(description="Test CLI app")]
+#[argh(description = "Test CLI app")]
 struct Cli {
     // CLI Options for program
     #[argh(option, default = "250")]
-    #[argh(description="tick rate for app")]
-    tick_rate: u64
+    #[argh(description = "tick rate for app")]
+    tick_rate: u64,
 }
 
 fn main() -> Result<(), io::Error> {

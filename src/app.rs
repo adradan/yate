@@ -1,6 +1,6 @@
 pub struct TabsState<'a> {
     pub titles: Vec<&'a str>,
-    pub index: usize
+    pub index: usize,
 }
 
 impl<'a> TabsState<'a> {
@@ -24,7 +24,7 @@ impl<'a> TabsState<'a> {
 pub struct App<'a> {
     pub title: &'a str,
     pub quit: bool,
-    pub tabs: TabsState<'a>
+    pub tabs: TabsState<'a>,
 }
 
 impl<'a> App<'a> {
@@ -32,7 +32,7 @@ impl<'a> App<'a> {
         App {
             title,
             quit: false,
-            tabs: TabsState::new(vec!["Tab 1", "Tab 2"])
+            tabs: TabsState::new(vec!["Tab 1", "Tab 2"]),
         }
     }
 

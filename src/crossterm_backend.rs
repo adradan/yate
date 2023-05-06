@@ -1,9 +1,16 @@
-use std::{time::{Duration, Instant}, io};
+use std::{
+    io,
+    time::{Duration, Instant},
+};
 
-use crossterm::{terminal::{enable_raw_mode, EnterAlternateScreen, disable_raw_mode, LeaveAlternateScreen}, execute, event::{EnableMouseCapture, DisableMouseCapture, Event, self, KeyEventKind, KeyCode}};
+use crossterm::{
+    event::{self, DisableMouseCapture, EnableMouseCapture, Event, KeyCode, KeyEventKind},
+    execute,
+    terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
+};
 use ratatui::{backend::CrosstermBackend, Terminal};
 
-use crate::{ui, app::App};
+use crate::{app::App, ui};
 
 pub fn run(tick_rate: Duration) -> Result<(), io::Error> {
     enable_raw_mode()?;
@@ -15,7 +22,7 @@ pub fn run(tick_rate: Duration) -> Result<(), io::Error> {
     // Create app and run
     let app = App::new_app("SOME TITLE");
     run_app(&mut terminal, app, tick_rate)?;
-    
+
     // On close behavior
     disable_raw_mode()?;
     execute!(
@@ -29,16 +36,18 @@ pub fn run(tick_rate: Duration) -> Result<(), io::Error> {
 }
 
 fn run_app(
-        terminal: &mut Terminal<CrosstermBackend<io::Stdout>>,
-        mut app: App,
-        tick_rate: Duration
-    ) -> Result<(), io::Error>{
+    terminal: &mut Terminal<CrosstermBackend<io::Stdout>>,
+    mut app: App,
+    tick_rate: Duration,
+) -> Result<(), io::Error> {
     terminal.clear()?;
     let mut last_tick = Instant::now();
 
     loop {
         terminal.draw(|frame| ui::draw(frame, &mut app))?;
-        let timeout = tick_rate.checked_sub(last_tick.elapsed()).unwrap_or_else(|| Duration::from_secs(0));
+        let timeout = tick_rate
+            .checked_sub(last_tick.elapsed())
+            .unwrap_or_else(|| Duration::from_secs(0));
 
         if crossterm::event::poll(timeout)? {
             if let Event::Key(key) = event::read()? {
