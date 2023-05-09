@@ -1,24 +1,21 @@
-use argh::FromArgs;
 use std::{io, time::Duration};
 
 mod app;
 mod crossterm_backend;
+mod event_handler;
+mod tabs;
 mod ui;
 
 use crate::crossterm_backend::run;
 
-#[derive(FromArgs)]
-#[argh(description = "Test CLI app")]
-struct Cli {
-    // CLI Options for program
-    #[argh(option, default = "250")]
-    #[argh(description = "tick rate for app")]
+struct Options {
     tick_rate: u64,
 }
 
 fn main() -> Result<(), io::Error> {
-    let cli: Cli = argh::from_env();
-    let tick_rate = Duration::from_millis(cli.tick_rate);
+    let app_options = Options { tick_rate: 250 };
+    let tick_rate = Duration::from_millis(app_options.tick_rate);
+
     run(tick_rate)?;
 
     Ok(())
