@@ -1,5 +1,8 @@
-use crate::event_handler::{Config, IoEvent, Keys};
+use crate::event_handler::{Config, IoEvent};
 use crate::tabs::TabsState;
+use crossterm::event::{KeyCode, KeyEvent, KeyEventKind, KeyEventState, KeyModifiers};
+
+use serde_json;
 
 pub struct App {
     pub title: String,
@@ -18,7 +21,7 @@ impl App {
         }
     }
 
-    pub fn check_event(&mut self, key: Keys) {
+    pub fn check_event(&mut self, key: KeyEvent) {
         let io_event = self.config.keybinds.get_keybind(&key);
         match io_event {
             IoEvent::NextTab => {
@@ -28,11 +31,30 @@ impl App {
                 self.tabs.previous();
             }
             IoEvent::QuitApp => {
-                self.quit = true;
+                self.quit_app();
+            }
+            IoEvent::Test => {
+                self.test();
             }
             IoEvent::Unknown => {
                 println!("Unkonnn.");
             }
         }
+    }
+
+    fn quit_app(&mut self) {
+        self.quit = true;
+    }
+
+    fn test(&mut self) {
+        let x = serde_json::to_string(&KeyEvent {
+            code: KeyCode::Left,
+            modifiers: KeyModifiers::CONTROL,
+            kind: KeyEventKind::Press,
+            state: KeyEventState::NONE,
+        })
+        .unwrap();
+        let y = serde_json::to_string(&self.config.keybinds).unwrap();
+        println!("{}", y);
     }
 }

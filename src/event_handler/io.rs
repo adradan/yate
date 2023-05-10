@@ -1,14 +1,15 @@
 use std::{fmt, sync::mpsc, thread, time::Duration};
 
 use crossterm::event;
+use crossterm::event::KeyEvent;
+use serde::{Deserialize, Serialize};
 
-use super::Keys;
-
-#[derive(Debug)]
+#[derive(Debug, Serialize, Deserialize, Eq, PartialEq)]
 pub enum IoEvent {
     NextTab,
     PreviousTab,
     QuitApp,
+    Test,
     Unknown,
 }
 
@@ -18,6 +19,7 @@ impl fmt::Display for IoEvent {
             IoEvent::NextTab => write!(f, "Next"),
             IoEvent::PreviousTab => write!(f, "Prev"),
             IoEvent::QuitApp => write!(f, "Quit"),
+            IoEvent::Test => write!(f, "Test"),
             IoEvent::Unknown => write!(f, "Unknown"),
         }
     }
@@ -29,19 +31,20 @@ impl From<&IoEvent> for IoEvent {
             IoEvent::NextTab => IoEvent::NextTab,
             IoEvent::PreviousTab => IoEvent::PreviousTab,
             IoEvent::QuitApp => IoEvent::QuitApp,
+            IoEvent::Test => IoEvent::Test,
             IoEvent::Unknown => IoEvent::Unknown,
         }
     }
 }
 
 pub struct Messages {
-    rx: mpsc::Receiver<Keys>,
-    _tx: mpsc::Sender<Keys>,
+    rx: mpsc::Receiver<KeyEvent>,
+    _tx: mpsc::Sender<KeyEvent>,
 }
 
 impl Messages {
     pub fn new(tick_rate: Duration) -> Self {
-        let (tx, rx) = mpsc::channel::<Keys>();
+        let (tx, rx) = mpsc::channel::<KeyEvent>();
 
         let event_tx = tx.clone();
 
@@ -51,7 +54,6 @@ impl Messages {
                     if event::KeyEventKind::Press != key.kind {
                         continue;
                     }
-                    let key = Keys::from(key);
                     event_tx.send(key).unwrap();
                 }
             }
@@ -60,7 +62,7 @@ impl Messages {
         Messages { rx, _tx: tx }
     }
 
-    pub fn get_event(&self) -> Result<Keys, mpsc::RecvError> {
+    pub fn get_event(&self) -> Result<KeyEvent, mpsc::RecvError> {
         self.rx.recv()
     }
 }
