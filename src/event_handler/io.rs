@@ -66,3 +66,14 @@ impl Messages {
         self.rx.recv()
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::IoEvent;
+
+    #[test]
+    fn from_borrowed_io() {
+        let event = IoEvent::from(&IoEvent::QuitApp);
+        assert_eq!(event, IoEvent::QuitApp);
+    }
+}

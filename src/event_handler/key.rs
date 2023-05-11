@@ -35,11 +35,11 @@ impl Keybinds {
     pub fn default_config() -> Keybinds {
         let mut keybinds: HashMap<KeyEvent, IoEvent> = HashMap::new();
         keybinds.insert(
-            create_key_event(KeyCode::Left, KeyModifiers::NONE),
+            create_key_event(KeyCode::Left, KeyModifiers::CONTROL),
             IoEvent::PreviousTab,
         );
         keybinds.insert(
-            create_key_event(KeyCode::Right, KeyModifiers::NONE),
+            create_key_event(KeyCode::Right, KeyModifiers::CONTROL),
             IoEvent::NextTab,
         );
         keybinds.insert(
@@ -63,12 +63,16 @@ impl Keybinds {
         }
     }
 
-    pub fn set_keybind(&mut self, old_key: &KeyEvent, new_key: KeyEvent, event: IoEvent) {
+    pub fn overwrite_keybind(&mut self, old_key: &KeyEvent, new_key: KeyEvent, event: IoEvent) {
         if let Some(_) = self.keybinds.remove(old_key) {
             self.keybinds.insert(new_key, event);
         } else {
             self.keybinds.insert(new_key, event);
         }
+    }
+
+    pub fn set_keybind(&mut self, new_key: KeyEvent, event: IoEvent) {
+        self.keybinds.insert(new_key, event);
     }
 }
 
@@ -88,5 +92,67 @@ impl Config {
                 keybinds: Keybinds::new(true),
             }
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use crossterm::event::{KeyCode, KeyModifiers};
+
+    use crate::event_handler::IoEvent;
+
+    use super::{create_key_event, Config, Keybinds};
+
+    #[test]
+    fn will_create_default_config() {
+        let config = Config::new(true);
+        let previous_tab = config
+            .keybinds
+            .get_keybind(&create_key_event(KeyCode::Left, KeyModifiers::CONTROL));
+        let next_tab = config
+            .keybinds
+            .get_keybind(&create_key_event(KeyCode::Right, KeyModifiers::CONTROL));
+        let quit = config
+            .keybinds
+            .get_keybind(&create_key_event(KeyCode::Char('q'), KeyModifiers::CONTROL));
+        let unknown = config
+            .keybinds
+            .get_keybind(&create_key_event(KeyCode::Char('p'), KeyModifiers::ALT));
+        assert_eq!(previous_tab, &IoEvent::PreviousTab);
+        assert_eq!(next_tab, &IoEvent::NextTab);
+        assert_eq!(quit, &IoEvent::QuitApp);
+        assert_eq!(unknown, &IoEvent::Unknown);
+    }
+
+    #[test]
+    fn will_get_unknown() {
+        let keybinds = Keybinds::new(true);
+        let unknown =
+            keybinds.get_keybind(&create_key_event(KeyCode::Char('p'), KeyModifiers::ALT));
+        assert_eq!(unknown, &IoEvent::Unknown);
+    }
+
+    #[test]
+    fn will_set_keybind() {
+        let mut keybinds = Keybinds::new(true);
+        let new_key = create_key_event(KeyCode::Char('p'), KeyModifiers::ALT);
+        keybinds.set_keybind(new_key, IoEvent::QuitApp);
+
+        let quit_event = keybinds.get_keybind(&new_key);
+        assert_eq!(quit_event, &IoEvent::QuitApp);
+    }
+
+    #[test]
+    fn will_overwrite_keybind() {
+        let mut keybinds = Keybinds::new(true);
+        let new_key = create_key_event(KeyCode::Char('p'), KeyModifiers::ALT);
+        let old_key = create_key_event(KeyCode::Char('q'), KeyModifiers::CONTROL);
+        keybinds.overwrite_keybind(&old_key, new_key, IoEvent::QuitApp);
+
+        let overwritten = keybinds.get_keybind(&old_key);
+        let new_keybind = keybinds.get_keybind(&new_key);
+
+        assert_eq!(overwritten, &IoEvent::Unknown);
+        assert_eq!(new_keybind, &IoEvent::QuitApp);
     }
 }
