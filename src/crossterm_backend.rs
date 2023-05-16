@@ -10,7 +10,7 @@ use ratatui::{backend::CrosstermBackend, Terminal};
 use crate::{app::App, event_handler::Messages, ui};
 
 pub fn run(tick_rate: Duration) -> Result<(), io::Error> {
-    let mut app = App::new_app("SOME TITLE".to_string());
+    let mut app = App::new_app("YATE".to_string());
 
     enable_raw_mode()?;
     let mut stdout = io::stdout();
@@ -44,7 +44,7 @@ fn run_app(
     let messages = Messages::new(tick_rate);
 
     loop {
-        terminal.draw(|frame| ui::draw(frame, &app))?;
+        terminal.draw(|frame| ui::draw(frame, app))?;
 
         app.check_event(messages.get_event().unwrap());
 

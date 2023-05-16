@@ -1,8 +1,6 @@
 use crate::event_handler::{Config, IoEvent};
-use crate::tabs::TabsState;
+use crate::state::{TabType, TabsState};
 use crossterm::event::{KeyCode, KeyEvent, KeyEventKind, KeyEventState, KeyModifiers};
-
-use serde_json;
 
 pub struct App {
     pub title: String,
@@ -13,10 +11,13 @@ pub struct App {
 
 impl App {
     pub fn new_app(title: String) -> Self {
+        let mut tabs_state = TabsState::new();
+        tabs_state.add_tab("Main Menu".to_string(), TabType::MainMenu);
+        tabs_state.add_tab("Settings".to_string(), TabType::Settings);
         App {
             title,
             quit: false,
-            tabs: TabsState::new(vec!["Tab 1".to_string(), "Tab 2".to_string()]),
+            tabs: tabs_state,
             config: Config::new(true),
         }
     }
@@ -25,10 +26,10 @@ impl App {
         let io_event = self.config.keybinds.get_keybind(&key);
         match io_event {
             IoEvent::NextTab => {
-                self.tabs.next();
+                self.tabs.next_tab();
             }
             IoEvent::PreviousTab => {
-                self.tabs.previous();
+                self.tabs.previous_tab();
             }
             IoEvent::QuitApp => {
                 self.quit_app();
@@ -36,9 +37,7 @@ impl App {
             IoEvent::Test => {
                 self.test();
             }
-            IoEvent::Unknown => {
-                println!("Unkonnn.");
-            }
+            IoEvent::Unknown => {}
         }
     }
 
@@ -47,7 +46,7 @@ impl App {
     }
 
     fn test(&mut self) {
-        let x = serde_json::to_string(&KeyEvent {
+        let _x = serde_json::to_string(&KeyEvent {
             code: KeyCode::Left,
             modifiers: KeyModifiers::CONTROL,
             kind: KeyEventKind::Press,

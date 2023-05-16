@@ -3,6 +3,7 @@ use std::{io, time::Duration};
 mod app;
 mod crossterm_backend;
 mod event_handler;
+mod state;
 mod tabs;
 mod ui;
 
