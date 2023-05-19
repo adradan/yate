@@ -25,6 +25,12 @@ pub struct Tab {
     pub tab_type: TabType,
 }
 
+impl Tab {
+    pub fn change_title(&mut self, new_title: String) {
+        self.title = new_title;
+    }
+}
+
 #[derive(Clone, Debug)]
 pub struct TabsState {
     pub index: usize,
@@ -58,6 +64,12 @@ impl TabsState {
             self.index -= 1;
         } else {
             self.index = self.tabs.len() - 1;
+        }
+    }
+
+    pub fn change_tab_title(&mut self, index: usize, new_title: String) {
+        if let Some(tab) = self.tabs.get_mut(index) {
+            tab.change_title(new_title);
         }
     }
 
