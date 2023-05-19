@@ -22,7 +22,7 @@ fn create_key_event(code: KeyCode, modifiers: KeyModifiers) -> KeyEvent {
 }
 
 impl Keybinds {
-    // Note: Ctrl + Shift + Char keybinds don't seem to work (at least natively), Ctrl will overwrite the shift.
+    // Note: Ctrl + Shift + Char keybinds don't work , Ctrl will overwrite the shift.
     pub fn new(create_default_config: bool) -> Self {
         let keybinds: HashMap<KeyEvent, IoEvent> = HashMap::new();
         if create_default_config {
@@ -47,7 +47,7 @@ impl Keybinds {
             IoEvent::QuitApp,
         );
         keybinds.insert(
-            create_key_event(KeyCode::Char('t'), KeyModifiers::NONE),
+            create_key_event(KeyCode::Char('t'), KeyModifiers::CONTROL),
             IoEvent::Test,
         );
         Keybinds { keybinds }

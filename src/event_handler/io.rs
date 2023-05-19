@@ -54,6 +54,8 @@ impl Messages {
                     if event::KeyEventKind::Press != key.kind {
                         continue;
                     }
+                    // let x = serde_json::to_string(&key).unwrap();
+                    // println!("{}", x);
                     event_tx.send(key).unwrap();
                 }
             }
