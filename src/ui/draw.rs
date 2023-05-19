@@ -11,7 +11,7 @@ use ratatui::{
 };
 
 use crate::app::App;
-use crate::ui::TabType;
+use crate::state::TabType;
 
 pub fn draw(frame: &mut Frame<CrosstermBackend<io::Stdout>>, app: &App) -> () {
     let screen_size = frame.size();

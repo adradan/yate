@@ -1,5 +1,5 @@
 use crate::event_handler::{Config, IoEvent};
-use crate::ui::{TabType, TabsState};
+use crate::state::{TabType, TabsState};
 use crossterm::event::{KeyCode, KeyEvent, KeyEventKind, KeyEventState, KeyModifiers};
 
 use serde_json;

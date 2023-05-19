@@ -1,49 +1,59 @@
+use std::error::Error;
+use std::fmt;
+use std::fmt::Formatter;
+
+#[derive(Debug)]
+pub struct NewTabError;
+
+impl Error for NewTabError {}
+
+impl fmt::Display for NewTabError {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        write!(f, "Error creating a new tab.")
+    }
+}
+
 #[derive(Clone, Debug)]
 pub enum TabType {
     MainMenu,
     Settings,
-    Unknown,
 }
 
 #[derive(Clone, Debug)]
 pub struct Tab {
     pub title: String,
-    tab_type: TabType,
-}
-
-impl Tab {
-    pub fn new(tab_type: TabType, title: String) -> Self {
-        Tab { title, tab_type }
-    }
-
-    pub fn get_title(&self) -> &String {
-        return &self.title;
-    }
-
-    pub fn get_tab_type(&self) -> &TabType {
-        return &self.tab_type;
-    }
+    pub tab_type: TabType,
 }
 
 #[derive(Clone, Debug)]
 pub struct TabsState {
-    pub tabs: Vec<Tab>,
     pub index: usize,
+    pub tabs: Vec<Tab>,
+    max_tabs: usize,
 }
 
 impl TabsState {
-    pub fn new() -> Self {
+    pub fn new() -> TabsState {
         TabsState {
             tabs: Vec::new(),
             index: 0,
+            max_tabs: 5,
         }
     }
 
-    pub fn next_tab(&mut self) {
+    pub fn new_tab(&mut self, title: String, tab_type: TabType) -> Result<(), NewTabError> {
+        if self.max_tabs.eq(&self.tabs.len()) {
+            return Err(NewTabError);
+        }
+        self.tabs.push(Tab { title, tab_type });
+        Ok(())
+    }
+
+    pub fn next(&mut self) {
         self.index = (self.index + 1) % self.tabs.len();
     }
 
-    pub fn previous_tab(&mut self) {
+    pub fn previous(&mut self) {
         if self.index > 0 {
             self.index -= 1;
         } else {
@@ -51,24 +61,10 @@ impl TabsState {
         }
     }
 
-    pub fn tab_index(&self) -> usize {
-        return self.index;
-    }
-
-    pub fn tab_info(&self) -> Option<&Tab> {
-        self.tabs.get(self.index)
-    }
-
-    pub fn tab_title(&self) -> String {
-        self.tabs.get(self.index).unwrap().title.to_string()
-    }
-
-    pub fn add_tab(&mut self, title: String, tab_type: TabType) {
-        let new_tab = Tab::new(tab_type, title);
-        self.tabs.push(new_tab);
-    }
-
-    pub fn get_tabs(&self) -> &Vec<Tab> {
-        return &self.tabs;
+    pub fn get_current_type(&self) -> TabType {
+        match self.tabs.get(self.index).unwrap().tab_type {
+            TabType::MainMenu => TabType::MainMenu,
+            TabType::Settings => TabType::Settings,
+        }
     }
 }

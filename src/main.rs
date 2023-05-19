@@ -3,6 +3,7 @@ use std::time::Duration;
 mod app;
 mod crossterm_backend;
 mod event_handler;
+mod state;
 mod ui;
 
 use crate::crossterm_backend::run;
