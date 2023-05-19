@@ -1,6 +1,7 @@
 use std::io;
 
 use ratatui::layout::Rect;
+use ratatui::widgets::Paragraph;
 use ratatui::{
     backend::CrosstermBackend,
     layout::{Constraint, Direction, Layout},
@@ -17,7 +18,14 @@ pub fn draw(frame: &mut Frame<CrosstermBackend<io::Stdout>>, app: &App) -> () {
     let screen_size = frame.size();
 
     let vertical_chunks = Layout::default()
-        .constraints([Constraint::Length(3), Constraint::Min(0)].as_ref())
+        .constraints(
+            [
+                Constraint::Length(3),
+                Constraint::Min(0),
+                Constraint::Length(3),
+            ]
+            .as_ref(),
+        )
         .direction(Direction::Vertical)
         .split(screen_size);
 
@@ -48,6 +56,7 @@ pub fn draw(frame: &mut Frame<CrosstermBackend<io::Stdout>>, app: &App) -> () {
             draw_settings(frame, app, vertical_chunks[1]);
         }
     }
+    draw_command_block(frame, app, vertical_chunks[2]);
 }
 
 fn draw_main_menu(frame: &mut Frame<CrosstermBackend<io::Stdout>>, app: &App, chunk: Rect) {
@@ -58,6 +67,13 @@ fn draw_main_menu(frame: &mut Frame<CrosstermBackend<io::Stdout>>, app: &App, ch
 fn draw_settings(frame: &mut Frame<CrosstermBackend<io::Stdout>>, app: &App, chunk: Rect) {
     let block = create_generic_block("Settings");
     frame.render_widget(block, chunk);
+}
+
+fn draw_command_block(frame: &mut Frame<CrosstermBackend<io::Stdout>>, app: &App, chunk: Rect) {
+    let block = create_generic_block("");
+    let text = vec![Spans::from(app.command_state.command.to_string())];
+    let p = Paragraph::new(text).block(block);
+    frame.render_widget(p, chunk);
 }
 
 fn create_generic_block(title: &str) -> Block {
