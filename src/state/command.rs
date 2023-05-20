@@ -1,3 +1,6 @@
+use crossterm::event::KeyCode::Char;
+use crossterm::event::{KeyCode, KeyEvent};
+
 #[derive(Debug)]
 enum CommandEvent {
     OpenFile,
@@ -24,15 +27,23 @@ impl From<&String> for CommandEvent {
 #[derive(Debug)]
 pub struct CommandState {
     pub command: String,
-    pub started: bool,
+    pub finished: bool,
 }
 
 impl CommandState {
     pub fn new() -> Self {
         CommandState {
             command: String::new(),
-            started: false,
+            finished: true,
         }
+    }
+
+    pub fn get_command_string(&self) -> String {
+        self.command.to_string()
+    }
+
+    pub fn is_finished(&self) -> &bool {
+        &self.finished
     }
 
     pub fn add_to_command(&mut self, c: char) {
@@ -40,18 +51,33 @@ impl CommandState {
         self.command = new_command;
     }
 
+    pub fn compose_command(&mut self, key: KeyEvent) {
+        match key {
+            KeyEvent {
+                code: KeyCode::Enter,
+                ..
+            } => {
+                self.execute_command();
+            }
+            KeyEvent { code: Char(c), .. } => {
+                self.add_to_command(c);
+            }
+            _ => {}
+        }
+    }
+
     pub fn start_command(&mut self) {
-        self.started = true;
+        self.finished = false;
         self.command = String::from(':');
     }
 
     pub fn end_command(&mut self) {
         // println!("{}", self.command);
-        self.started = false;
+        self.finished = true;
     }
 
     pub fn execute_command(&mut self) {
-        self.started = false;
+        self.finished = true;
         let command_parts = self.split_command();
         // println!("{}", self.command);
         let command_event = CommandEvent::from(&self.command);

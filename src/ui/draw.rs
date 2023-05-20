@@ -71,8 +71,10 @@ fn draw_settings(frame: &mut Frame<CrosstermBackend<io::Stdout>>, app: &App, chu
 
 fn draw_command_block(frame: &mut Frame<CrosstermBackend<io::Stdout>>, app: &App, chunk: Rect) {
     let block = create_generic_block("");
-    let text = vec![Spans::from(app.command_state.command.to_string())];
-    let p = Paragraph::new(text).block(block);
+    let command_text = vec![Spans::from(
+        app.state_manager.command_state.get_command_string(),
+    )];
+    let p = Paragraph::new(command_text).block(block);
     frame.render_widget(p, chunk);
 }
 

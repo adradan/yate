@@ -21,8 +21,8 @@ pub fn run(tick_rate: Duration) -> Result<(), Box<dyn std::error::Error>> {
         stdout,
         EnterAlternateScreen,
         EnableMouseCapture,
-        PushKeyboardEnhancementFlags(KeyboardEnhancementFlags::DISAMBIGUATE_ESCAPE_CODES),
-        PushKeyboardEnhancementFlags(KeyboardEnhancementFlags::REPORT_EVENT_TYPES),
+        // PushKeyboardEnhancementFlags(KeyboardEnhancementFlags::DISAMBIGUATE_ESCAPE_CODES),
+        // PushKeyboardEnhancementFlags(KeyboardEnhancementFlags::REPORT_EVENT_TYPES),
     )?;
 
     let backend = CrosstermBackend::new(stdout);

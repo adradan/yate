@@ -1,5 +1,5 @@
 use crate::event_handler::{Config, IoEvent};
-use crate::state::{CommandState, TabType, TabsState};
+use crate::state::{CommandState, StateManager, TabType, TabsState};
 use crossterm::event::KeyCode::Char;
 use crossterm::event::{KeyCode, KeyEvent, KeyEventKind, KeyEventState, KeyModifiers};
 
@@ -10,7 +10,7 @@ pub struct App {
     pub quit: bool,
     pub tabs_state: TabsState,
     pub config: Config,
-    pub command_state: CommandState,
+    pub state_manager: StateManager,
 }
 
 impl App {
@@ -28,14 +28,14 @@ impl App {
             quit: false,
             tabs_state,
             config: Config::new(true),
-            command_state: CommandState::new(),
+            state_manager: StateManager::new(),
         }
     }
 
     pub fn check_event(&mut self, key: KeyEvent) {
         let io_event = self.config.keybinds.get_keybind(&key);
-        if self.command_state.started {
-            self.compose_command(key);
+        let handle_keybinds = self.state_manager.handle_state(key);
+        if !handle_keybinds {
             return;
         }
         // Customizable Keybinds
@@ -53,30 +53,6 @@ impl App {
                 self.test();
             }
             IoEvent::Unknown => {}
-        }
-        // Regular Keybinds
-        match key {
-            KeyEvent {
-                code: Char(':'), ..
-            } => {
-                self.command_state.start_command();
-            }
-            _ => {}
-        }
-    }
-
-    fn compose_command(&mut self, key: KeyEvent) {
-        match key {
-            KeyEvent {
-                code: KeyCode::Enter,
-                ..
-            } => {
-                self.command_state.execute_command();
-            }
-            KeyEvent { code: Char(c), .. } => {
-                self.command_state.add_to_command(c);
-            }
-            _ => {}
         }
     }
 
