@@ -1,6 +1,7 @@
 use std::io;
 
 use ratatui::layout::Rect;
+use ratatui::text::Span;
 use ratatui::widgets::Paragraph;
 use ratatui::{
     backend::CrosstermBackend,
@@ -48,12 +49,16 @@ pub fn draw(frame: &mut Frame<CrosstermBackend<io::Stdout>>, app: &App) -> () {
     frame.render_widget(tabs, vertical_chunks[0]);
 
     let current_tab = app.tabs_state.get_current_type();
+    let main_chunk = vertical_chunks[1];
     match current_tab {
         TabType::MainMenu => {
-            draw_main_menu(frame, app, vertical_chunks[1]);
+            draw_main_menu(frame, app, main_chunk);
         }
         TabType::Settings => {
-            draw_settings(frame, app, vertical_chunks[1]);
+            draw_settings(frame, app, main_chunk);
+        }
+        TabType::File => {
+            draw_file(frame, app, main_chunk);
         }
     }
     draw_command_block(frame, app, vertical_chunks[2]);
@@ -71,11 +76,18 @@ fn draw_settings(frame: &mut Frame<CrosstermBackend<io::Stdout>>, app: &App, chu
 
 fn draw_command_block(frame: &mut Frame<CrosstermBackend<io::Stdout>>, app: &App, chunk: Rect) {
     let block = create_generic_block("");
-    let command_text = vec![Spans::from(
-        app.state_manager.command_state.get_command_string(),
-    )];
-    let p = Paragraph::new(command_text).block(block);
+    let mut command_txt = app.state_manager.command_state.get_command_string();
+    if command_txt.len() > 0 {
+        command_txt += "_";
+    }
+    let command_span = vec![Spans::from(command_txt)];
+    let p = Paragraph::new(command_span).block(block);
     frame.render_widget(p, chunk);
+}
+
+fn draw_file(frame: &mut Frame<CrosstermBackend<io::Stdout>>, app: &App, chunk: Rect) {
+    let block = create_generic_block("Some File.");
+    frame.render_widget(block, chunk);
 }
 
 fn create_generic_block(title: &str) -> Block {

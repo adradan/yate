@@ -17,6 +17,7 @@ impl fmt::Display for NewTabError {
 pub enum TabType {
     MainMenu,
     Settings,
+    File,
 }
 
 #[derive(Clone, Debug)]
@@ -73,10 +74,7 @@ impl TabsState {
         }
     }
 
-    pub fn get_current_type(&self) -> TabType {
-        match self.tabs.get(self.index).unwrap().tab_type {
-            TabType::MainMenu => TabType::MainMenu,
-            TabType::Settings => TabType::Settings,
-        }
+    pub fn get_current_type(&self) -> &TabType {
+        &self.tabs.get(self.index).unwrap().tab_type
     }
 }

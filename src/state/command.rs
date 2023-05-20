@@ -1,5 +1,6 @@
 use crossterm::event::KeyCode::Char;
 use crossterm::event::{KeyCode, KeyEvent};
+use std::path::Path;
 
 #[derive(Debug)]
 enum CommandEvent {
@@ -13,7 +14,7 @@ impl From<&String> for CommandEvent {
     fn from(value: &String) -> Self {
         // Removes the : character
         match &value[1..] {
-            v if v.starts_with("cd") => CommandEvent::OpenFile,
+            v if v.starts_with("open") => CommandEvent::OpenFile,
             v if v.to_string() == "sc" => {
                 // Save and Close
                 CommandEvent::CloseFile
@@ -51,6 +52,14 @@ impl CommandState {
         self.command = new_command;
     }
 
+    fn remove_from_command(&mut self) {
+        if self.command.len() == 1 {
+            return;
+        }
+        let new_command = self.command[..self.command.len() - 1].to_string();
+        self.command = new_command;
+    }
+
     pub fn compose_command(&mut self, key: KeyEvent) {
         match key {
             KeyEvent {
@@ -61,6 +70,12 @@ impl CommandState {
             }
             KeyEvent { code: Char(c), .. } => {
                 self.add_to_command(c);
+            }
+            KeyEvent {
+                code: KeyCode::Backspace,
+                ..
+            } => {
+                self.remove_from_command();
             }
             _ => {}
         }
@@ -83,7 +98,7 @@ impl CommandState {
         let command_event = CommandEvent::from(&self.command);
         match command_event {
             CommandEvent::OpenFile => {
-                self.open_file(command_parts);
+                self.open_file(command_parts.1);
             }
             CommandEvent::CloseFile => {}
             CommandEvent::QuitApp => {}
@@ -92,16 +107,15 @@ impl CommandState {
         self.command = "".to_string();
     }
 
-    fn split_command(&self) -> Vec<&str> {
-        return self.command.split(" ").collect();
+    fn split_command(&self) -> (&str, &str) {
+        let default_tuple = ("", "");
+        return *self.command.split_once(" ").get_or_insert(default_tuple);
     }
 
-    fn open_file(&self, command_parts: Vec<&str>) {
-        // println!("{:?}", command_parts);
-        let file_path = command_parts.get(1);
-
-        if let Some(file_path) = file_path {
-            // println!("{}", file_path);
+    fn open_file(&self, file_path: &str) {
+        if !file_path.is_empty() && Path::new(&file_path).exists() {
+            // Open and draw
+            return;
         }
     }
 }
