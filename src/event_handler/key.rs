@@ -53,10 +53,10 @@ impl Keybinds {
         Keybinds { keybinds }
     }
 
-    pub fn get_keybind(&self, key: &KeyEvent) -> &IoEvent {
+    pub fn get_keybind(&self, key: KeyEvent) -> &IoEvent {
         // let x = serde_json::to_string(&key).unwrap();
         // println!("{}", x);
-        if let Some(event) = self.keybinds.get(key) {
+        if let Some(event) = self.keybinds.get(&key) {
             event
         } else {
             &IoEvent::Unknown
@@ -108,16 +108,16 @@ mod tests {
         let config = Config::new(true);
         let previous_tab = config
             .keybinds
-            .get_keybind(&create_key_event(KeyCode::Left, KeyModifiers::CONTROL));
+            .get_keybind(create_key_event(KeyCode::Left, KeyModifiers::CONTROL));
         let next_tab = config
             .keybinds
-            .get_keybind(&create_key_event(KeyCode::Right, KeyModifiers::CONTROL));
+            .get_keybind(create_key_event(KeyCode::Right, KeyModifiers::CONTROL));
         let quit = config
             .keybinds
-            .get_keybind(&create_key_event(KeyCode::Char('q'), KeyModifiers::CONTROL));
+            .get_keybind(create_key_event(KeyCode::Char('q'), KeyModifiers::CONTROL));
         let unknown = config
             .keybinds
-            .get_keybind(&create_key_event(KeyCode::Char('p'), KeyModifiers::ALT));
+            .get_keybind(create_key_event(KeyCode::Char('p'), KeyModifiers::ALT));
         assert_eq!(previous_tab, &IoEvent::PreviousTab);
         assert_eq!(next_tab, &IoEvent::NextTab);
         assert_eq!(quit, &IoEvent::QuitApp);
@@ -127,8 +127,7 @@ mod tests {
     #[test]
     fn will_get_unknown() {
         let keybinds = Keybinds::new(true);
-        let unknown =
-            keybinds.get_keybind(&create_key_event(KeyCode::Char('p'), KeyModifiers::ALT));
+        let unknown = keybinds.get_keybind(create_key_event(KeyCode::Char('p'), KeyModifiers::ALT));
         assert_eq!(unknown, &IoEvent::Unknown);
     }
 
@@ -138,7 +137,7 @@ mod tests {
         let new_key = create_key_event(KeyCode::Char('p'), KeyModifiers::ALT);
         keybinds.set_keybind(new_key, IoEvent::QuitApp);
 
-        let quit_event = keybinds.get_keybind(&new_key);
+        let quit_event = keybinds.get_keybind(new_key);
         assert_eq!(quit_event, &IoEvent::QuitApp);
     }
 
@@ -149,8 +148,8 @@ mod tests {
         let old_key = create_key_event(KeyCode::Char('q'), KeyModifiers::CONTROL);
         keybinds.overwrite_keybind(&old_key, new_key, IoEvent::QuitApp);
 
-        let overwritten = keybinds.get_keybind(&old_key);
-        let new_keybind = keybinds.get_keybind(&new_key);
+        let overwritten = keybinds.get_keybind(old_key);
+        let new_keybind = keybinds.get_keybind(new_key);
 
         assert_eq!(overwritten, &IoEvent::Unknown);
         assert_eq!(new_keybind, &IoEvent::QuitApp);

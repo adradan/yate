@@ -33,7 +33,7 @@ impl App {
     }
 
     pub fn check_event(&mut self, key: KeyEvent) {
-        let io_event = self.config.keybinds.get_keybind(&key);
+        let io_event = self.config.keybinds.get_keybind(key);
         let handle_keybinds = self.state_manager.handle_state(key);
         if !handle_keybinds {
             return;
